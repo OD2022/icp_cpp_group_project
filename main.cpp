@@ -14,13 +14,14 @@ vector<string> splitStrings(string str, string delim);
 void mapJourney(vector<string> departureAirports, vector<string> arrivalAirports);
 void printTicket(vector<vector<string>> flightPath, string ticketFilePath);
 void getOrder();
-
+void getOrder2(string filename);
 
 
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
-    getOrder();
+    //getOrder();
+    getOrder2("accra-lagos");
     return 0;
 }
 
@@ -50,6 +51,34 @@ void getOrder(){
         vector<string> departureAirports = getAirports(startCity, startCountry);
         vector<string> arrivalAirports = getAirports(stopCity, stopCountry);
         mapJourney(departureAirports, arrivalAirports);
+}
+
+
+void getOrder2(string filename){
+    string filepath = filename + ".txt";
+    string myText;
+    ifstream MyFile(filepath);
+
+    vector<string> departure;
+    vector<string> arrival;
+
+    getline (MyFile, myText);
+    departure.push_back(myText);
+    getline (MyFile, myText);
+    arrival.push_back(myText);
+
+
+    MyFile.close();
+
+    string startCity = splitStrings(departure[0], ",")[0];
+    string startCountry = splitStrings(departure[0], ",")[1];
+
+    string stopCity = splitStrings(arrival[0], ",")[0];
+    string stopCountry = splitStrings(arrival[0], ",")[1];
+
+    vector<string> departureAirports = getAirports(startCity, startCountry);
+    vector<string> arrivalAirports = getAirports(stopCity, stopCountry);
+    mapJourney(departureAirports, arrivalAirports);
 }
 
 
