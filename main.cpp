@@ -11,50 +11,22 @@ vector<vector<string>> getFlightPath(string startAirport, vector<string> stopAir
 vector<string> getAirports(string city, string country);
 vector<vector<string>> getDepartures(string airportCode);
 vector<string> splitStrings(string str, string delim);
-void mapJourney(vector<string> departureAirports, vector<string> arrivalAirports);
-void printTicket(vector<vector<string>> flightPath, string ticketFilePath);
-void getOrder();
-void getOrder2(string filename);
+void mapJourney(vector<string> departureAirports, vector<string> arrivalAirports, string orderFileName);
+void printTicket(vector<vector<string>> flightPath, string orderFileName);
+void getOrder(string filename);
 
 
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
     //getOrder();
-    getOrder2("accra-lagos");
+    getOrder("accra-lagos");
     return 0;
 }
 
 
-
-
-void getOrder(){
-        string startCity;
-        string startCountry;
-
-        string stopCity;
-        string stopCountry;
-
-        //Collecting and processing departure details
-        cout << "Enter Departure City" << endl;
-        cin >> startCity;
-        cout << "Enter Departure Country" << endl;
-        cin >> startCountry;
-
-        //Collecting and processing arrival details
-        cout << "Enter Arrival City" << endl;
-        cin >> stopCity;
-        cout << "Enter Arrival Country" << endl;
-        cin >> stopCountry;
-
-        //Getting airports for departure and arrivals
-        vector<string> departureAirports = getAirports(startCity, startCountry);
-        vector<string> arrivalAirports = getAirports(stopCity, stopCountry);
-        mapJourney(departureAirports, arrivalAirports);
-}
-
-
-void getOrder2(string filename){
+/**A method to get an order from a text file*/
+void getOrder(string filename){
     string filepath = filename + ".txt";
     string myText;
     ifstream MyFile(filepath);
@@ -78,9 +50,8 @@ void getOrder2(string filename){
 
     vector<string> departureAirports = getAirports(startCity, startCountry);
     vector<string> arrivalAirports = getAirports(stopCity, stopCountry);
-    mapJourney(departureAirports, arrivalAirports);
+    mapJourney(departureAirports, arrivalAirports, filename);
 }
-
 
 
 /**A method to split strings*/
@@ -142,6 +113,8 @@ public:
     }
 };
 
+
+
 /** A structure to compare two nodes */
 struct comparator{
     bool operator()(FlightNode n1, FlightNode n2){
@@ -151,12 +124,11 @@ struct comparator{
 
 
 //Mapping Journeys
-void mapJourney(vector<string> departureAirports, vector<string> arrivalAirports){
+void mapJourney(vector<string> departureAirports, vector<string> arrivalAirports, string orderFileName){
     for (string airport : departureAirports) {
         cout << "These are your departure airports" << airport;
         vector<vector<string>> flightPath = getFlightPath(airport, arrivalAirports);
-        string filePath = "optimalFlight.txt";
-        printTicket(flightPath, filePath);
+        printTicket(flightPath, orderFileName);
     }
 }
 
@@ -225,7 +197,7 @@ vector<vector<string>> getFlightPath(string startAirport, vector<string> stopAir
                                     FlightMatches.push(child);
                                     cout << "FOUND A FLIGHT, ADDING TO PRIORITY QUEUE";
                                 }
-                                //neighbourhood.push_back(child);
+                                //neighbourhood.push_back(&child);
                             }
                         }
                     }
@@ -241,8 +213,9 @@ vector<vector<string>> getFlightPath(string startAirport, vector<string> stopAir
 
 
 /** Print ticket method*/
-void printTicket(vector<vector<string>> flightPath, string ticketFilePath){
-    ofstream ticket("ticket.txt");
+void printTicket(vector<vector<string>> flightPath, string orderFileName){
+    string outputFile = orderFileName + "_output.txt";
+    ofstream ticket(outputFile);
     if(ticket.is_open()){
         ticket << "TICKET PRINT-OUT\n";
     }
