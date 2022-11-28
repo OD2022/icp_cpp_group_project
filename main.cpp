@@ -16,13 +16,11 @@ void printTicket(vector<vector<string>> flightPath, string orderFileName);
 void getOrder(string filename);
 
 
-
 int main() {
     std::cout << "Hello, World!" << std::endl;
     getOrder("accra-lagos");
     return 0;
 }
-
 /**A class for flight Node*/
 class FlightNode {
 
@@ -31,16 +29,9 @@ public:
     vector<string> State;
     int PathCost;
 
-    //First constructor
+    //Constructor
     FlightNode(vector<string> state, FlightNode* parent, int pathCost) {
         Parent = parent;
-        State = state;
-        PathCost = pathCost;
-    }
-
-    //Second constructor
-    FlightNode(vector<string> state, int pathCost) {
-        Parent = NULL;
         State = state;
         PathCost = pathCost;
     }
@@ -97,127 +88,104 @@ vector<string> splitStrings(string str, string delim){
 
 /** Print ticket method*/
 void printTicket(vector<vector<string>> flightPath, string orderFileName){
-    string outputFile = orderFileName + "_output.txt";
-    ofstream ticket(outputFile);
-    if(ticket.is_open()){
-        ticket << "TICKET PRINT-OUT\n";
+    try{
+        string outputFile = orderFileName + "_output.txt";
+        ofstream ticket(outputFile);
+        if(ticket.is_open()){
+            ticket << "TICKET PRINT-OUT\n";
+        }
+        if(!ticket.fail()){
+            cout << "Ticket Created successfully\n";
+        }
+        for (int i = 0; i < flightPath.size(); i++) {
+            string airline = flightPath[i][0];
+            string departure = flightPath[i][2];
+            string arrival = flightPath[i][4];
+            ticket << airline << " FROM " << departure << " TO " << arrival << endl;
+        }
+        ticket << "TOTAL FLIGHTS" << " " <<  flightPath.size() << endl << "TOTAL ADDITIONAL STOPS: 0";
+        ticket << "------------------------------" << endl << endl;
+        ticket.close();
+        } catch(exception const& e){
+            cout << "There was an error: " << e.what() << endl;
+        }
     }
-    if(!ticket.fail()){
-        cout << "Ticket Created successfully\n";
-    }
-    for (int i = 0; i < flightPath.size(); i++) {
-        string airline = flightPath[i][1];
-        string departure = flightPath[i][2];
-        string arrival = flightPath[i][4];
-        ticket << airline << " FROM " << departure << " TO " << arrival << endl;
-    }
-    ticket << "TOTAL FLIGHTS" << " " <<  flightPath.size() << endl << "TOTAL ADDITIONAL STOPS: 0";
-    ticket << "------------------------------" << endl << endl;
-    ticket.close();
-}
 
 
 /** Get Departures method*/
 vector<vector<string>> getDepartures(string airportCode){
+    string record;
     vector<vector<string>> departures;
+    vector<string> cleanedRecord;
+    vector<vector<string>> cleanedRecords;
 
-    vector<string> cells;
-    vector<vector<string>> records;
-
-    ifstream route;
-    route.open("routes.csv");
-
-    if(route.is_open()){
-        cout << "File open\n";
-    }
-    if(route.fail()){
-        cerr << "Unable to open file" << endl;
-    }
-
-    while (route.peek() !=EOF){
-        string cell;
-        getline(route, cell, ',');
-        cells.push_back(cell);
-    }
-    route.close();
-
-    //A way to get a collection of the records
-    int j = 0;
-    int k = 0;
-    while(k < cells.size()/8){
-        vector<string> record;
-        for(int i=j; i<=j+8; i++){
-            record.push_back(cells[i]);
+    try{
+        ifstream route;
+        route.open("routes.csv");
+        while (route.peek() != EOF) {
+            getline(route, record);
+            const char separator = ',';
+            stringstream streamData(record);
+            string cell;
+            while(getline(streamData, cell, separator)){
+                cleanedRecord.push_back(cell);
+            }
+            cleanedRecords.push_back(cleanedRecord);
+            cleanedRecord.clear();
         }
-        j+=8;
-        k++;
-        records.push_back(record);
-    }
-
-    //A way of collecting airport codes
-
-    for(vector<string> v : records){
-        if(airportCode == v[2]){
-            departures.push_back(v);
+        for(vector<string> flight : cleanedRecords){
+            if(airportCode == flight[2]){
+                departures.push_back(flight);
+            }
         }
-    }
+        route.close();
+    } catch(exception const& e) {
+        cout << "There was an error: " << e.what() << endl;
+        }
     return departures;
 }
 
+
 /** Get airport codes*/
-vector<string> getAirports(string city, string country) {
-    cout << "Getting airport codes";
+vector<string> getAirports(string city, string country){
+    cout << "Getting airport codes" << endl;
+
     vector<string> airportCodes;
+    string record;
+    vector<string> cleanedRecord;
+    vector<vector<string>> airportDetails;
 
-
-    vector<string> cells;
-    vector<vector<string>> records;
-
-    ifstream airports;
-    airports.open("airports.csv");
-
-    if(airports.is_open()){
-        cout << "File open\n";
-    }
-    if(airports.fail()){
-        cerr << "Unable to open file" << endl;
-    }
-
-    while (airports.peek() !=EOF){
-        string cell;
-        getline(airports, cell, ',');
-        cells.push_back(cell);
-    }
-    airports.close();
-
-    //A way to get a collection of the records
-    int j = 0;
-    int k = 0;
-    while(k < cells.size()/13){
-        vector<string> record;
-        for(int i=j; i<=j+13; i++){
-            record.push_back(cells[i]);
+    try{
+        ifstream airports;
+        airports.open("airports.csv");
+        while (airports.peek() != EOF) {
+            getline(airports, record);
+            const char separator = ',';
+            stringstream streamData(record);
+            string cell;
+            while(getline(streamData, cell, separator)){
+                cleanedRecord.push_back(cell);
+            }
+            airportDetails.push_back(cleanedRecord);
+            cleanedRecord.clear();
         }
-        j+=13;
-        k++;
-        records.push_back(record);
-    }
-
-    //A way of collecting airport codes
-
-    for(vector<string> v : records){
-        if(city == v[2] && country == v[3]){
-            airportCodes.push_back(v[4]);
+        for(vector<string> airportDetail : airportDetails){
+            if(city == airportDetail[2] && country == airportDetail[3]){
+                airportCodes.push_back(airportDetail[4]);
+            }
         }
+        airports.close();
+        }catch (exception const& e){
+            cout << "There was an error: " << e.what() << endl;
+        }
+        return airportCodes;
     }
-    return airportCodes;
-}
+
 
 /**Function to get a flight*/
 vector<vector<string>> getFlightPath(string startAirport, vector<string> stopAirports){
 
     //A vector containing arrival airports
-
     vector<string> arrivalAirports = stopAirports;
 
     //A vector containing departing flights from start airport
@@ -228,7 +196,7 @@ vector<vector<string>> getFlightPath(string startAirport, vector<string> stopAir
 
     // For each flight perform a depth-first search, if a solution is found
     // add the node to the priorityQueue
-    while (FlightMatches.size() < 5) {
+    while (FlightMatches.empty()){
         for (vector<string> flight: departingFlights){
 
             //Creating a starting node with no parent, zero cost
@@ -236,60 +204,51 @@ vector<vector<string>> getFlightPath(string startAirport, vector<string> stopAir
 
             // Check if the current flight will arrive in a destination airport
             if (count(arrivalAirports.begin(), arrivalAirports.end(), node.State[4]) > 0){
-                cout << "FOUND A FLIGHT, ADDING TO PRIORITY QUEUE" << endl;
+                cout << "FOUND A STRAIGHT FLIGHT, ADDING TO PRIORITY QUEUE" << endl;
                 FlightMatches.push(node);
-            }
+                break;
+            } else{
+                //A set which hold routes that have been visited
+                set<vector<string>> visited;
+                //A vector representing an unexplored frontier
+                vector<FlightNode> neighbourhood;
+                //Push the node into the frontier for future exploration
+                neighbourhood.push_back(node);
 
-            //A set which hold routes that have been visited
-            set<vector<string>> visited;
-            //A vector representing an unexplored frontier
-            vector<FlightNode> neighbourhood;
+                //Exploring the frontier
+                while (!neighbourhood.empty() && FlightMatches.empty()){
+                    //Pop the first node in the frontier
+                    node = neighbourhood.front();
+                    neighbourhood.erase(neighbourhood.begin());
+                    //Insert node into visited set
+                    visited.insert(node.State);
 
-            //Push the node into the frontier for future exploration
-            neighbourhood.push_back(node);
+                    //Generate a list of places reachable from current node
+                    vector<vector<string>> neighbours = getDepartures(node.State[4]);
 
-            //Exploring the frontier
-            while (!neighbourhood.empty() && FlightMatches.size() < 5) {
-
-                //Pop the first node in the frontier
-                node = neighbourhood.front();
-                neighbourhood.erase(neighbourhood.begin());
-
-                //Insert node into visited set
-                visited.insert(node.State);
-
-                //Generate a list of places reachable from current node
-                vector<vector<string>> neighbours = getDepartures(node.State[4]);
-
-                if (neighbours.size() != 0) {
-                    for (vector<string> neighbour: neighbours) {
-                        vector<vector<string>> childPath = node.solutionPath();
-                        childPath.push_back(neighbour);
-
-                        // Create a new child node
-                        FlightNode child(neighbour, &node, node.PathCost + 1);
-
-                        if (visited.count(child.State) == 0){
+                    if (!neighbours.empty()){
+                        for (vector<string> neighbour: neighbours){
+                            // Create a new child node
+                            FlightNode child(neighbour, &node, node.PathCost + 1);
+                            if(visited.count(child.State) == 0){
                                 if (count(arrivalAirports.begin(), arrivalAirports.end(), child.State[4]) > 0){
-                                    FlightMatches.push(child);
-                                    cout << "FOUND A FLIGHT, ADDING TO PRIORITY QUEUE" << endl;
-                                }
-                                //neighbourhood.push_back(child);
+                                        FlightMatches.push(child);
+                                        cout << "FOUND AN INNER FLIGHT, ADDING TO PRIORITY QUEUE" << endl;
+                                        break;
+                                    }neighbourhood.push_back(child);
+                            }
                         }
                     }
                 }
             }
         }
     }
-    cout << "DONE! PLEASE CHECK FOR YOUR TICKET PRINTOUT!";
+    cout << "DONE! PLEASE CHECK FOR YOUR TICKET PRINTOUT!" << endl;
     FlightNode flight = FlightMatches.top();
     return flight.solutionPath();
 }
 
-
-
-
-/**A function to map a journey*/
+/**A function to map a journey and print a ticket for the journey*/
 void mapJourney(vector<string> departureAirports, vector<string> arrivalAirports, string orderFileName){
     for (string airport : departureAirports){
         vector<vector<string>> flightPath = getFlightPath(airport, arrivalAirports);
