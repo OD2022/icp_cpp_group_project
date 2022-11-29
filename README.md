@@ -1,3 +1,6 @@
+The final compiled project is in the project2 folder. This contains the cmake.
+
+
 This project is intended to help a user who has a start city and stop city, to find an optimal flight from a database of airports, routes and airline CSV files. It uses an iterative depth-first search approach to find an optimal flight based on the number of flight stops.
 
 This project and all it's source code is contained in the main.cpp file. 
